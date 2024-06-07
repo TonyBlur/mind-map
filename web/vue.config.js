@@ -6,7 +6,7 @@ const WebpackDynamicPublicPathPlugin = require('webpack-dynamic-public-path')
 
 module.exports = {
   publicPath: '',
-  outputDir: 'dist',
+  outputDir: 'public',
   lintOnSave: false,
   productionSourceMap: false,
   filenameHashing: false,
