@@ -28,6 +28,7 @@
     "simple-mind-map": "file:../simple-mind-map"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@vue/cli-plugin-babel": "^4.5.0",
     "@vue/cli-plugin-eslint": "^4.5.0",
     "@vue/cli-service": "^4.5.0",
@@ -60,7 +61,10 @@
     },
     "rules": {}
   },
-  "workspaces": ["web", "simple-mind-map"],
+  "workspaces": [
+    "web",
+    "simple-mind-map"
+  ],
   "browserslist": [
     "> 1%",
     "last 2 versions",
