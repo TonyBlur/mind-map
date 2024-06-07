@@ -60,6 +60,7 @@
     },
     "rules": {}
   },
+  "workspaces": ["web", "simple-mind-map"],
   "browserslist": [
     "> 1%",
     "last 2 versions",
