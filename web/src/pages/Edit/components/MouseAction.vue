@@ -11,7 +11,6 @@
       placement="top"
     >
       <div
-        ref="btn"
         class="btn iconfont"
         :class="[useLeftKeySelectionRightKeyDrag ? 'iconmouseR' : 'iconmouseL']"
         @click="toggleAction"
@@ -47,43 +46,8 @@ export default {
         state.localConfig.useLeftKeySelectionRightKeyDrag
     })
   },
-  mounted() {
-    this.addTouchEventListeners();
-  },
-  beforeDestroy() {
-    this.removeTouchEventListeners();
-  },
   methods: {
     ...mapMutations(['setLocalConfig']),
-
-    addTouchEventListeners() {
-      this.$refs.btn.addEventListener('touchstart', this.handleTouchStart);
-      this.$refs.btn.addEventListener('touchmove', this.handleTouchMove);
-      this.$refs.btn.addEventListener('touchend', this.handleTouchEnd);
-    },
-    removeTouchEventListeners() {
-      this.$refs.btn.removeEventListener('touchstart', this.handleTouchStart);
-      this.$refs.btn.removeEventListener('touchmove', this.handleTouchMove);
-      this.$refs.btn.removeEventListener('touchend', this.handleTouchEnd);
-    },
-    handleTouchStart(e) {
-      var mouseEvent = new MouseEvent('mousedown', {
-        clientX: e.touches[0].clientX,
-        clientY: e.touches[0].clientY
-      });
-      this.$refs.btn.dispatchEvent(mouseEvent);
-    },
-    handleTouchMove(e) {
-      var mouseEvent = new MouseEvent('mousemove', {
-        clientX: e.touches[0].clientX,
-        clientY: e.touches[0].clientY
-      });
-      this.$refs.btn.dispatchEvent(mouseEvent);
-    },
-    handleTouchEnd(e) {
-      var mouseEvent = new MouseEvent('mouseup', {});
-      this.$refs.btn.dispatchEvent(mouseEvent);
-    },
 
     toggleAction() {
       let val = !this.useLeftKeySelectionRightKeyDrag
