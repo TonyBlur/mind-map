@@ -32,7 +32,7 @@
         }"
         @click="$bus.$emit('startPainter')"
       >
-        <span class="icon iconfont iconjiedian"></span>
+        <span class="icon iconfont icongeshishua"></span>
         <span class="text">{{ $t('toolbar.painter') }}</span>
       </div>
       <div
