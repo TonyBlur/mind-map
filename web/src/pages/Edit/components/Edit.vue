@@ -255,7 +255,7 @@ export default {
     },
     onTouchend(e) {
       this.touchEvent.onTouchend(e)
-    }
+    },
     handleStartTextEdit() {
       this.mindMap.renderer.startTextEdit()
     },
