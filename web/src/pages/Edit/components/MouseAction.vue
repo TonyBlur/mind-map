@@ -46,8 +46,43 @@ export default {
         state.localConfig.useLeftKeySelectionRightKeyDrag
     })
   },
+  mounted() {
+    this.addTouchEventListeners();
+  },
+  beforeDestroy() {
+    this.removeTouchEventListeners();
+  },
   methods: {
     ...mapMutations(['setLocalConfig']),
+
+    addTouchEventListeners() {
+      this.$el.addEventListener('touchstart', this.handleTouchStart);
+      this.$el.addEventListener('touchmove', this.handleTouchMove);
+      this.$el.addEventListener('touchend', this.handleTouchEnd);
+    },
+    removeTouchEventListeners() {
+      this.$el.removeEventListener('touchstart', this.handleTouchStart);
+      this.$el.removeEventListener('touchmove', this.handleTouchMove);
+      this.$el.removeEventListener('touchend', this.handleTouchEnd);
+    },
+    handleTouchStart(e) {
+      var mouseEvent = new MouseEvent('mousedown', {
+        clientX: e.touches[0].clientX,
+        clientY: e.touches[0].clientY
+      });
+      this.$el.dispatchEvent(mouseEvent);
+    },
+    handleTouchMove(e) {
+      var mouseEvent = new MouseEvent('mousemove', {
+        clientX: e.touches[0].clientX,
+        clientY: e.touches[0].clientY
+      });
+      this.$el.dispatchEvent(mouseEvent);
+    },
+    handleTouchEnd(e) {
+      var mouseEvent = new MouseEvent('mouseup', {});
+      this.$el.dispatchEvent(mouseEvent);
+    },
 
     toggleAction() {
       let val = !this.useLeftKeySelectionRightKeyDrag
