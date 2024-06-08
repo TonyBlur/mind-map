@@ -9,7 +9,6 @@ import 'viewerjs/dist/viewer.css'
 import VueViewer from 'v-viewer'
 import i18n from './i18n'
 import { getLang } from '@/api'
-import VueTouch from 'vue-touch'
 // import VConsole from 'vconsole'
 // const vConsole = new VConsole()
 
@@ -18,7 +17,6 @@ const bus = new Vue()
 Vue.prototype.$bus = bus
 Vue.use(ElementUI)
 Vue.use(VueViewer)
-Vue.use(VueTouch, {name: 'v-touch'})
 
 const initApp = () => {
   i18n.locale = getLang()
