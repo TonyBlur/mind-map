@@ -6,12 +6,18 @@
         size="small"
         style="width: 100px"
         @change="onLangChange"
+        v-touch:tap="handleTap"
+        v-touch:swipe="handleSwipe"
+        v-touch:press="handlePress"
       >
         <el-option
           v-for="item in langList"
           :key="item.value"
           :label="item.name"
           :value="item.value"
+          v-touch:tap="handleTap"
+          v-touch:swipe="handleSwipe"
+          v-touch:press="handlePress"
         />
       </el-select>
     </div>
@@ -20,6 +26,9 @@
         effect="dark"
         :content="$t('navigatorToolbar.backToRoot')"
         placement="top"
+        v-touch:tap="handleTap"
+        v-touch:swipe="handleSwipe"
+        v-touch:press="handlePress"
       >
         <div class="btn iconfont icondingwei" @click="backToRoot"></div>
       </el-tooltip>
@@ -39,6 +48,9 @@
             : $t('navigatorToolbar.openMiniMap')
         "
         placement="top"
+        v-touch:tap="handleTap"
+        v-touch:swipe="handleSwipe"
+        v-touch:press="handlePress"
       >
         <div class="btn iconfont icondaohang1" @click="toggleMiniMap"></div>
       </el-tooltip>
@@ -59,6 +71,9 @@
             : $t('navigatorToolbar.readonly')
         "
         placement="top"
+        v-touch:tap="handleTap"
+        v-touch:swipe="handleSwipe"
+        v-touch:press="handlePress"
       >
         <div
           class="btn iconfont"
@@ -85,6 +100,9 @@
         effect="dark"
         :content="$t('navigatorToolbar.changeSourceCodeEdit')"
         placement="top"
+        v-touch:tap="handleTap"
+        v-touch:swipe="handleSwipe"
+        v-touch:press="handlePress"
       >
         <div class="btn iconfont iconyuanma" @click="openSourceCodeEdit"></div>
       </el-tooltip>
@@ -93,7 +111,12 @@
       <Demonstrate :isDark="isDark" :mindMap="mindMap"></Demonstrate>
     </div>
     <div class="item">
-      <el-dropdown @command="handleCommand">
+      <el-dropdown 
+      @command="handleCommand"
+      v-touch:tap="handleTap"
+      v-touch:swipe="handleSwipe"
+      v-touch:press="handlePress"
+      >
         <div class="btn iconfont iconbangzhu"></div>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="github">Github</el-dropdown-item>
@@ -155,6 +178,16 @@ export default {
     this.lang = getLang()
   },
   methods: {
+    handleTap() {
+      console.log('Button tapped')
+    },
+    handleSwipe() {
+      console.log('Button swiped')
+    },
+    handlePress() {
+      console.log('Button long pressed')
+    },
+    
     ...mapMutations(['setLocalConfig', 'setIsReadonly', 'setIsSourceCodeEdit']),
 
     readonlyChange() {

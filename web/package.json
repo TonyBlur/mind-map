@@ -19,13 +19,14 @@
     "element-ui": "^2.15.1",
     "highlight.js": "^10.7.3",
     "katex": "^0.16.9",
+    "simple-mind-map": "file:../simple-mind-map",
     "v-viewer": "^1.6.4",
     "vue": "^2.6.11",
     "vue-i18n": "^8.27.2",
     "vue-router": "^3.5.1",
+    "vue-touch": "^2.0.0-beta.4",
     "vuex": "^3.6.2",
-    "xlsx": "^0.18.5",
-    "simple-mind-map": "file:../simple-mind-map"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",

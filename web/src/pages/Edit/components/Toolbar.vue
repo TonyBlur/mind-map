@@ -12,6 +12,9 @@
           trigger="hover"
           v-if="showMoreBtn"
           :style="{ marginLeft: horizontalList.length > 0 ? '20px' : 0 }"
+          v-touch:tap="handleTap"
+          v-touch:swipe="handleSwipe"
+          v-touch:press="handlePress"
         >
           <ToolbarNodeBtnList
             dir="v"
@@ -34,6 +37,9 @@
           effect="dark"
           :content="$t('toolbar.newFileTip')"
           placement="bottom"
+          v-touch:tap="handleTap"
+          v-touch:swipe="handleSwipe"
+          v-touch:press="handlePress"
         >
           <div class="toolbarBtn" @click="createNewLocalFile">
             <span class="icon iconfont iconxinjian"></span>
@@ -44,6 +50,9 @@
           effect="dark"
           :content="$t('toolbar.openFileTip')"
           placement="bottom"
+          v-touch:tap="handleTap"
+          v-touch:swipe="handleSwipe"
+          v-touch:press="handlePress"
         >
           <div class="toolbarBtn" @click="openLocalFile">
             <span class="icon iconfont iconwenjian1"></span>
@@ -114,6 +123,9 @@
                     size="mini"
                     v-if="data.enableEdit"
                     @click="editLocalFile(data)"
+                    v-touch:tap="handleTap"
+                    v-touch:swipe="handleSwipe"
+                    v-touch:press="handlePress"
                     >编辑</el-button
                   >
                   <el-button
@@ -121,6 +133,9 @@
                     size="mini"
                     v-else
                     @click="importLocalFile(data)"
+                    v-touch:tap="handleTap"
+                    v-touch:swipe="handleSwipe"
+                    v-touch:press="handlePress"
                     >导入</el-button
                   >
                 </div>
@@ -234,6 +249,17 @@ export default {
     this.$bus.$off('lang_change', this.computeToolbarShowThrottle)
   },
   methods: {
+    // 触摸事件
+    handleTap() {
+      console.log('Button tapped')
+    },
+    handleSwipe() {
+      console.log('Button swiped')
+    },
+    handlePress() {
+      console.log('Button long pressed')
+    },
+    
     // 计算工具按钮如何显示
     computeToolbarShow() {
       const windowWidth = window.innerWidth - 40

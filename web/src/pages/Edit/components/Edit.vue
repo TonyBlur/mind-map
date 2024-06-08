@@ -5,9 +5,6 @@
     @dragleave.stop.prevent
     @dragover.stop.prevent
     @drop.stop.prevent
-    @touchstart="onTouchstart"
-    @touchmove="onTouchmove"
-    @touchend="onTouchend"
   >
     <div
       class="mindMapContainer"
@@ -173,8 +170,7 @@ export default {
       mindMapData: null,
       prevImg: '',
       storeConfigTimer: null,
-      showDragMask: false,
-      touchEvent: null
+      showDragMask: false
     }
   },
   computed: {
@@ -228,8 +224,6 @@ export default {
     this.$bus.$on('node_tree_render_end', this.handleHideLoading)
     this.$bus.$on('showLoading', this.handleShowLoading)
     window.addEventListener('resize', this.handleResize)
-    this.touchEvent = new TouchEvent({ mindMap: this.mindMap })
-    this.touchEvent.bindEvent()
   },
   beforeDestroy() {
     this.$bus.$off('execCommand', this.execCommand)
@@ -244,18 +238,8 @@ export default {
     this.$bus.$off('showLoading', this.handleShowLoading)
     window.removeEventListener('resize', this.handleResize)
     this.mindMap.destroy()
-    this.touchEvent.unBindEvent()
   },
   methods: {
-    onTouchstart(e) {
-      this.touchEvent.onTouchstart(e)
-    },
-    onTouchmove(e) {
-      this.touchEvent.onTouchmove(e)
-    },
-    onTouchend(e) {
-      this.touchEvent.onTouchend(e)
-    },
     handleStartTextEdit() {
       this.mindMap.renderer.startTextEdit()
     },
