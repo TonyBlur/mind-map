@@ -64,7 +64,7 @@ export default {
   right: -60px;
   margin-top: 110px;
   transition: all 0.3s;
-  top: 50%;
+  top: 40vh;
   transform: translateY(-50%);
 
   &.isDark {

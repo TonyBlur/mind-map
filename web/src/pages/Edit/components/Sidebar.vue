@@ -87,6 +87,7 @@ export default {
   display: flex;
   flex-direction: column;
   transition: all 0.3s;
+  border-radius: 7px 0;
 
   &.isDark {
     background-color: #262a2e;
