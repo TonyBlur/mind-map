@@ -11,6 +11,7 @@
       placement="top"
     >
       <div
+        ref="btn"
         class="btn iconfont"
         :class="[useLeftKeySelectionRightKeyDrag ? 'iconmouseR' : 'iconmouseL']"
         @click="toggleAction"
@@ -56,32 +57,32 @@ export default {
     ...mapMutations(['setLocalConfig']),
 
     addTouchEventListeners() {
-      this.$el.addEventListener('touchstart', this.handleTouchStart);
-      this.$el.addEventListener('touchmove', this.handleTouchMove);
-      this.$el.addEventListener('touchend', this.handleTouchEnd);
+      this.$refs.btn.addEventListener('touchstart', this.handleTouchStart);
+      this.$refs.btn.addEventListener('touchmove', this.handleTouchMove);
+      this.$refs.btn.addEventListener('touchend', this.handleTouchEnd);
     },
     removeTouchEventListeners() {
-      this.$el.removeEventListener('touchstart', this.handleTouchStart);
-      this.$el.removeEventListener('touchmove', this.handleTouchMove);
-      this.$el.removeEventListener('touchend', this.handleTouchEnd);
+      this.$refs.btn.removeEventListener('touchstart', this.handleTouchStart);
+      this.$refs.btn.removeEventListener('touchmove', this.handleTouchMove);
+      this.$refs.btn.removeEventListener('touchend', this.handleTouchEnd);
     },
     handleTouchStart(e) {
       var mouseEvent = new MouseEvent('mousedown', {
         clientX: e.touches[0].clientX,
         clientY: e.touches[0].clientY
       });
-      this.$el.dispatchEvent(mouseEvent);
+      this.$refs.btn.dispatchEvent(mouseEvent);
     },
     handleTouchMove(e) {
       var mouseEvent = new MouseEvent('mousemove', {
         clientX: e.touches[0].clientX,
         clientY: e.touches[0].clientY
       });
-      this.$el.dispatchEvent(mouseEvent);
+      this.$refs.btn.dispatchEvent(mouseEvent);
     },
     handleTouchEnd(e) {
       var mouseEvent = new MouseEvent('mouseup', {});
-      this.$el.dispatchEvent(mouseEvent);
+      this.$refs.btn.dispatchEvent(mouseEvent);
     },
 
     toggleAction() {
