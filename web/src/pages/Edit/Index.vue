@@ -79,10 +79,6 @@ export default {
 </script>
 
 <style lang="less">
-* {
-  touch-action: manipulation;
-}
-
 .container {
 }
 
