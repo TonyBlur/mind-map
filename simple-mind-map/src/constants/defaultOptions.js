@@ -215,6 +215,7 @@ export const defaultOpt = {
   // 函数接收两个参数：key（快捷键）、activeNodeList（当前激活的节点列表）
   beforeShortcutRun: null,
   // 移动节点到画布中心、回到根节点等操作时是否将缩放层级复位为100%
+  // 该选项实际影响的是render.moveNodeToCenter方法，moveNodeToCenter方法本身也存在第二个参数resetScale来设置是否复位，如果resetScale参数没有传递，那么使用resetScaleOnMoveNodeToCenter配置，否则使用resetScale配置
   resetScaleOnMoveNodeToCenter: false,
   // 添加附加的节点前置内容，前置内容指和文本同一行的区域中的前置内容，不包括节点图片部分
   createNodePrefixContent: null,
@@ -250,6 +251,11 @@ export const defaultOpt = {
     cloneNodeOpacity: 0.5, // 跟随鼠标移动的克隆节点或矩形的透明度
     beingDragNodeOpacity: 0.3 // 被拖拽节点的透明度
   },
+  // 拖拽单个节点时会克隆被拖拽节点，如果想修改该克隆节点，那么可以通过该选项提供一个处理函数，函数接收克隆节点对象
+  // 需要注意的是节点对象指的是@svgdotjs/svg.js库的元素对象，所以你需要阅读该库的文档来操作该对象
+  handleDragCloneNode: null,
+  // 即将拖拽完成前调用该函数，函数接收一个对象作为参数：{overlapNodeUid,prevNodeUid,nextNodeUid}，代表拖拽信息，如果要阻止本次拖拽，那么可以返回true。函数可以是异步函数，返回Promise实例
+  beforeDragEnd: null,
 
   // 【Watermark插件】
   // 水印配置
@@ -293,6 +299,9 @@ export const defaultOpt = {
   */
   addContentToHeader: null,
   addContentToFooter: null,
+  // 导出png、svg、pdf时会获取画布上的svg数据进行克隆，然后通过该克隆的元素进行导出，如果你想对该克隆元素做一些处理，比如新增、替换、修改其中的一些元素，那么可以通过该参数传递一个处理函数，接收svg元素对象，处理后，需要返回原svg元素对象。
+  // 需要注意的是svg对象指的是@svgdotjs/svg.js库的元素对象，所以你需要阅读该库的文档来操作该对象
+  handleBeingExportSvg: null,
 
   // 【AssociativeLine插件】
   // 关联线默认文字
