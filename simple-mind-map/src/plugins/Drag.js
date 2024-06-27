@@ -6,6 +6,7 @@ import {
 } from '../utils'
 import Base from '../layouts/Base'
 import { CONSTANTS } from '../constants/constant'
+import AutoMove from '../utils/AutoMove'
 
 // 节点拖动插件
 class Drag extends Base {
@@ -13,13 +14,14 @@ class Drag extends Base {
   constructor({ mindMap }) {
     super(mindMap.renderer)
     this.mindMap = mindMap
+    this.autoMove = new AutoMove(mindMap)
     this.reset()
     this.bindEvent()
   }
 
   //  复位
   reset() {
-    // 是否正在跳转中
+    // 是否正在拖拽中
     this.isDragging = false
     // 鼠标按下的节点
     this.mousedownNode = null
@@ -131,7 +133,7 @@ class Drag extends Base {
       this.mindMap.opt
     // 停止自动移动
     if (autoMoveWhenMouseInEdgeOnDrag && this.mindMap.select) {
-      this.mindMap.select.clearAutoMoveTimer()
+      this.autoMove.clearAutoMoveTimer()
     }
     this.isMousedown = false
     // 恢复被拖拽节点的临时设置
@@ -148,7 +150,8 @@ class Drag extends Base {
       const isCancel = await beforeDragEnd({
         overlapNodeUid,
         prevNodeUid,
-        nextNodeUid
+        nextNodeUid,
+        beingDragNodeList: [...this.beingDragNodeList]
       })
       if (isCancel) {
         this.reset()
@@ -223,7 +226,7 @@ class Drag extends Base {
 
   //  拖动中
   onMove(x, y, e) {
-    if (!this.isMousedown) {
+    if (!this.isMousedown || !this.isDragging) {
       return
     }
     // 更新克隆节点的位置
@@ -236,18 +239,15 @@ class Drag extends Base {
     this.clone.translate(x - t.translateX, y - t.translateY)
     // 检测新位置
     this.checkOverlapNode()
-    // 如果注册了多选节点插件，那么复用它的边缘自动移动画布功能
-    if (this.mindMap.opt.autoMoveWhenMouseInEdgeOnDrag && this.mindMap.select) {
-      this.drawTransform = this.mindMap.draw.transform()
-      this.mindMap.select.clearAutoMoveTimer()
-      this.mindMap.select.onMove(e.clientX, e.clientY)
-    }
+    // 边缘自动移动画布
+    this.drawTransform = this.mindMap.draw.transform()
+    this.autoMove.clearAutoMoveTimer()
+    this.autoMove.onMove(e.clientX, e.clientY)
   }
 
   // 开始拖拽时初始化一些数据
-  handleStartMove() {
+  async handleStartMove() {
     if (!this.isDragging) {
-      this.isDragging = true
       // 鼠标按下的节点
       let node = this.mousedownNode
       // 计算鼠标按下的位置距离节点左上角的距离
@@ -268,12 +268,19 @@ class Drag extends Base {
         // 否则只拖拽按下的节点
         this.beingDragNodeList = [node]
       }
+      // 拦截拖拽
+      const { beforeDragStart } = this.mindMap.opt
+      if (typeof beforeDragStart === 'function') {
+        const stop = await beforeDragStart([...this.beingDragNodeList])
+        if (stop) return
+      }
       // 将节点树转为节点数组
       this.nodeTreeToList()
       // 创建克隆节点
       this.createCloneNode()
       // 清除当前所有激活的节点
       this.mindMap.execCommand('CLEAR_ACTIVE_NODE')
+      this.isDragging = true
     }
   }
 

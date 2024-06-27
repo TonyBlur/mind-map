@@ -551,7 +551,7 @@ Listen to an event. Event list:
 | node_active                      | Node activation event                                                    | this (node instance), activeNodeList (current list of active nodes)                                             |
 | expand_btn_click                 | Node expand or collapse event                                            | this (node instance)                                                                                            |
 | before_show_text_edit            | Event before node text edit box opens                                    |                                                                                                                 |
-| hide_text_edit                   | Node text edit box close event                                           | textEditNode (text edit box DOM node), activeNodeList (current list of active nodes)                            |
+| hide_text_edit                   | Node text edit box close event【The end of text editing for the associated line will also trigger this event, and there are no callback parameters at this time, so defensive programming is necessary】    | textEditNode (text edit box DOM node), activeNodeList (current list of active nodes) 、node（v0.10.2+, Node instance for current text editing）                 |
 | scale                            | Canvas zoom event                                                               | scale (zoom ratio)                                            |
 | translate（v0.9.10+）         |   Canvas movement event           | x（translate x）、y（translate y）                     |
 | node_img_dblclick（v0.2.15+）    | Node image double-click event                                            | this (node instance), e (event object)                                                                          |
@@ -585,6 +585,8 @@ Listen to an event. Event list:
 | demonstrate_jump（v0.9.11+）    | Trigger when switching steps in demonstration mode  |  currentStepIndex（The index of the steps currently played, counting from 0）、stepLength（Total number of playback steps）   |
 | node_tag_click（v0.9.12+）    | Click events on node labels | this(Current node instance)、item（Content of clicked tags）    |
 | node_layout_end（v0.10.1+）    | Event where the content layout of a single node is completed | this(Current node instance)  |
+| node_attachmentClick（v0.9.10+）    | Click event for node attachment icon | this(Current node instance)、e（Event Object）、node（Icon node）  |
+| node_attachmentContextmenu（v0.9.10+）    | Right click event on node attachment icon | this(Current node instance)、e（Event Object）、node（Icon node）  |
 
 ### emit(event, ...args)
 

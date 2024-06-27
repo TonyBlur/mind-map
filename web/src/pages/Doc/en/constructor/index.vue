@@ -1438,8 +1438,8 @@ poor performance and should be used sparingly.</p>
 </tr>
 <tr>
 <td>hide_text_edit</td>
-<td>Node text edit box close event</td>
-<td>textEditNode (text edit box DOM node), activeNodeList (current list of active nodes)</td>
+<td>Node text edit box close event【The end of text editing for the associated line will also trigger this event, and there are no callback parameters at this time, so defensive programming is necessary】</td>
+<td>textEditNode (text edit box DOM node), activeNodeList (current list of active nodes) 、node（v0.10.2+, Node instance for current text editing）</td>
 </tr>
 <tr>
 <td>scale</td>
@@ -1605,6 +1605,16 @@ poor performance and should be used sparingly.</p>
 <td>node_layout_end（v0.10.1+）</td>
 <td>Event where the content layout of a single node is completed</td>
 <td>this(Current node instance)</td>
+</tr>
+<tr>
+<td>node_attachmentClick（v0.9.10+）</td>
+<td>Click event for node attachment icon</td>
+<td>this(Current node instance)、e（Event Object）、node（Icon node）</td>
+</tr>
+<tr>
+<td>node_attachmentContextmenu（v0.9.10+）</td>
+<td>Right click event on node attachment icon</td>
+<td>this(Current node instance)、e（Event Object）、node（Icon node）</td>
 </tr>
 </tbody>
 </table>

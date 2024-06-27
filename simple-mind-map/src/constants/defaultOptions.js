@@ -221,6 +221,11 @@ export const defaultOpt = {
   createNodePrefixContent: null,
   // 添加附加的节点后置内容，后置内容指和文本同一行的区域中的后置内容，不包括节点图片部分
   createNodePostfixContent: null,
+  // 禁止粘贴用户剪贴板中的数据，禁止将复制的数据写入用户的剪贴板中
+  disabledClipboard: false,
+  // 自定义超链接的跳转
+  // 如果不传，默认会以新窗口的方式打开超链接，可以传递一个函数，函数接收两个参数：link（超链接的url）、node（所属节点实例），只要传递了函数，就会阻止默认的跳转
+  customHyperlinkJump: null,
 
   // 【Select插件】
   // 多选节点时鼠标移动到边缘时的画布移动偏移量
@@ -256,6 +261,8 @@ export const defaultOpt = {
   handleDragCloneNode: null,
   // 即将拖拽完成前调用该函数，函数接收一个对象作为参数：{overlapNodeUid,prevNodeUid,nextNodeUid}，代表拖拽信息，如果要阻止本次拖拽，那么可以返回true，此时node_dragend事件不会再触发。函数可以是异步函数，返回Promise实例
   beforeDragEnd: null,
+  // 即将开始调整节点前调用该函数，函数接收当前即将被拖拽的节点实例列表作为参数，如果要阻止本次拖拽，那么可以返回true
+  beforeDragStart: null,
 
   // 【Watermark插件】
   // 水印配置
@@ -380,5 +387,5 @@ export const defaultOpt = {
   beforeHideRichTextEdit: null,
   // 设置富文本节点编辑框和节点大小一致，形成伪原地编辑的效果
   // 需要注意的是，只有当节点内只有文本、且形状是矩形才会有比较好的效果
-  richTextEditFakeInPlace: false,
+  richTextEditFakeInPlace: false
 }

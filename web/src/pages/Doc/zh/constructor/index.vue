@@ -1307,8 +1307,8 @@ mindMap.setTheme(<span class="hljs-string">&#x27;主题名称&#x27;</span>)
 </tr>
 <tr>
 <td>hide_text_edit</td>
-<td>节点文本编辑框关闭事件</td>
-<td>textEditNode（文本编辑框DOM节点）、activeNodeList（当前激活的所有节点列表）</td>
+<td>节点文本编辑框关闭事件【关联线的文本编辑结束也会触发该事件，此时没有回调参数，所以需要做好防御性编程】</td>
+<td>textEditNode（文本编辑框DOM节点）、activeNodeList（当前激活的所有节点列表）、node（v0.10.2+，当前文本编辑的节点实例）</td>
 </tr>
 <tr>
 <td>scale</td>
@@ -1474,6 +1474,16 @@ mindMap.setTheme(<span class="hljs-string">&#x27;主题名称&#x27;</span>)
 <td>node_layout_end（v0.10.1+）</td>
 <td>单个节点内容布局完成的事件</td>
 <td>this(当前节点实例)</td>
+</tr>
+<tr>
+<td>node_attachmentClick（v0.9.10+）</td>
+<td>节点附件图标的点击事件</td>
+<td>this(当前节点实例)、e（事件对象）、node（图标节点）</td>
+</tr>
+<tr>
+<td>node_attachmentContextmenu（v0.9.10+）</td>
+<td>节点附件图标的右键点击事件</td>
+<td>this(当前节点实例)、e（事件对象）、node（图标节点）</td>
 </tr>
 </tbody>
 </table>

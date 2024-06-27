@@ -550,7 +550,7 @@ mindMap.setTheme('主题名称')
 | node_active                      | 节点激活事件                               | this（节点实例）、activeNodeList（当前激活的所有节点列表）   |
 | expand_btn_click                 | 节点展开或收缩事件                         | this（节点实例）                                             |
 | before_show_text_edit            | 节点文本编辑框即将打开事件                 |                                                              |
-| hide_text_edit                   | 节点文本编辑框关闭事件                     | textEditNode（文本编辑框DOM节点）、activeNodeList（当前激活的所有节点列表） |
+| hide_text_edit                   | 节点文本编辑框关闭事件【关联线的文本编辑结束也会触发该事件，此时没有回调参数，所以需要做好防御性编程】                     | textEditNode（文本编辑框DOM节点）、activeNodeList（当前激活的所有节点列表）、node（v0.10.2+，当前文本编辑的节点实例） |
 | scale                            | 画布放大缩小事件                               | scale（缩放比例）                                            |
 | translate（v0.9.10+）               | 画布移动事件              | x（水平位移）、y（垂直位移）                     |
 | node_img_dblclick（v0.2.15+）    | 节点内图片的双击事件                       | this（节点实例）、e（事件对象）                              |
@@ -584,6 +584,8 @@ mindMap.setTheme('主题名称')
 | demonstrate_jump（v0.9.11+）    | 演示模式中，切换步骤时触发  |  currentStepIndex（当前播放到的步骤索引，从0开始计数）、stepLength（总的播放步骤数量）   |
 | node_tag_click（v0.9.12+）    | 节点标签的点击事件 | this(当前节点实例)、item（点击的标签内容）    |
 | node_layout_end（v0.10.1+）    | 单个节点内容布局完成的事件 | this(当前节点实例)  |
+| node_attachmentClick（v0.9.10+）    | 节点附件图标的点击事件 | this(当前节点实例)、e（事件对象）、node（图标节点）  |
+| node_attachmentContextmenu（v0.9.10+）    | 节点附件图标的右键点击事件 | this(当前节点实例)、e（事件对象）、node（图标节点）  |
 
 ### emit(event, ...args)
 
