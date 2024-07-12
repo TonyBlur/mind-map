@@ -25,10 +25,12 @@ Github：[releases](https://github.com/wanglin2/mind-map/releases)。百度云�
 
 > 客户端版本会落后于在线版本，尝试最新功能请优先使用在线版。
 
+如果你需要带后端的可部署版本，可以尝试我们开发的另一个项目[理想文档](https://github.com/wanglin2/lx-doc)。
+
 # 特性
 
 - [x] 插件化架构，除核心功能外，其他功能作为插件提供，按需使用，减小打包体积
-- [x] 支持逻辑结构图、思维导图、组织结构图、目录组织图、时间轴（横向、竖向）、鱼骨图等结构
+- [x] 支持逻辑结构图（向左、向右逻辑结构图）、思维导图、组织结构图、目录组织图、时间轴（横向、竖向）、鱼骨图等结构
 - [x] 内置多种主题，允许高度自定义样式，支持注册新主题
 - [x] 节点内容支持文本（普通文本、富文本）、图片、图标、超链接、备注、标签、概要、数学公式
 - [x] 节点支持拖拽（拖拽移动、自由调整）、多种节点形状；支持扩展节点内容、支持使用 DDM 完全自定义节点内容
@@ -42,7 +44,7 @@ Github：[releases](https://github.com/wanglin2/mind-map/releases)。百度云�
 
 官方提供了如下插件，可根据需求按需引入（某个功能不生效大概率是因为你没有引入对应的插件），具体使用方式请查看文档：
 
-> RichText（节点富文本插件）、Select（鼠标多选节点插件）、Drag（节点拖拽插件）、AssociativeLine（关联线插件）、Export（导出插件）、KeyboardNavigation（键盘导航插件）、MiniMap（小地图插件）、Watermark（水印插件）、TouchEvent（移动端触摸事件支持插件）、NodeImgAdjust（拖拽调整节点图片大小插件）、Search（搜索插件）、Painter（节点格式刷插件）、Scrollbar（滚动条插件）、Formula（数学公式插件）、Cooperate（协同编辑插件）、RainbowLines（彩虹线条插件）、Demonstrate（演示模式插件）、HandDrawnLikeStyle（手绘风格插件）[收费]、Notation（节点标记插件）[收费]
+> RichText（节点富文本插件）、Select（鼠标多选节点插件）、Drag（节点拖拽插件）、AssociativeLine（关联线插件）、Export（导出插件）、KeyboardNavigation（键盘导航插件）、MiniMap（小地图插件）、Watermark（水印插件）、TouchEvent（移动端触摸事件支持插件）、NodeImgAdjust（拖拽调整节点图片大小插件）、Search（搜索插件）、Painter（节点格式刷插件）、Scrollbar（滚动条插件）、Formula（数学公式插件）、Cooperate（协同编辑插件）、RainbowLines（彩虹线条插件）、Demonstrate（演示模式插件）、OuterFrame（外框插件）、HandDrawnLikeStyle（手绘风格插件）[收费]、Notation（节点标记插件）[收费]
 
 本项目不会实现的特性：
 
@@ -408,5 +410,9 @@ const mindMap = new MindMap({
     <span>
         <img src="./web/src/assets/avatar/秀树因馨雨.jpg" style="width: 50px;height: 50px;" />
         <span>秀树因馨雨</span>
+    </span>
+    <span>
+        <img src="./web/src/assets/avatar/buddy.jpg" style="width: 50px;height: 50px;" />
+        <span>buddy</span>
     </span>
 </p>
