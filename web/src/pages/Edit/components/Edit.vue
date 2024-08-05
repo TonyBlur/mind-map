@@ -37,6 +37,7 @@
     <FormulaSidebar v-if="mindMap" :mindMap="mindMap"></FormulaSidebar>
     <SourceCodeEdit v-if="mindMap" :mindMap="mindMap"></SourceCodeEdit>
     <NodeOuterFrame v-if="mindMap" :mindMap="mindMap"></NodeOuterFrame>
+    <NodeTagStyle v-if="mindMap" :mindMap="mindMap"></NodeTagStyle>
     <div
       class="dragMask"
       v-if="showDragMask"
@@ -112,6 +113,7 @@ import FormulaSidebar from './FormulaSidebar.vue'
 import SourceCodeEdit from './SourceCodeEdit.vue'
 import NodeAttachment from './NodeAttachment.vue'
 import NodeOuterFrame from './NodeOuterFrame.vue'
+import NodeTagStyle from './NodeTagStyle.vue'
 
 // 注册插件
 MindMap.usePlugin(MiniMap)
@@ -168,7 +170,8 @@ export default {
     FormulaSidebar,
     SourceCodeEdit,
     NodeAttachment,
-    NodeOuterFrame
+    NodeOuterFrame,
+    NodeTagStyle
   },
   data() {
     return {
@@ -189,7 +192,8 @@ export default {
         state.localConfig.useLeftKeySelectionRightKeyDrag,
       isUseHandDrawnLikeStyle: state =>
         state.localConfig.isUseHandDrawnLikeStyle,
-      extraTextOnExport: state => state.extraTextOnExport
+      extraTextOnExport: state => state.extraTextOnExport,
+      isDragOutlineTreeNode: state => state.isDragOutlineTreeNode
     })
   },
   watch: {
@@ -409,6 +413,9 @@ export default {
             cssText,
             height: 30
           }
+        },
+        expandBtnNumHandler: num => {
+          return num >= 100 ? '…' : num
         }
         // createNodePrefixContent: (node) => {
         //   const el = document.createElement('div')
@@ -574,6 +581,12 @@ export default {
       // 解析url中的文件
       if (hasFileURL) {
         this.$bus.$emit('handle_file_url')
+      }
+      // api/index.js文件使用
+      // 当正在编辑本地文件时通过该方法获取最新数据
+      Vue.prototype.getCurrentData = () => {
+        const fullData = this.mindMap.getData(true)
+        return { ...fullData, config: this.mindMapData.config }
       }
       // 协同测试
       this.cooperateTest()
@@ -845,6 +858,7 @@ export default {
 
     // 拖拽文件到页面导入
     onDragenter() {
+      if (this.isDragOutlineTreeNode) return
       this.showDragMask = true
     },
     onDragleave() {
@@ -854,6 +868,7 @@ export default {
       this.showDragMask = false
       const dt = e.dataTransfer
       const file = dt.files && dt.files[0]
+      if (!file) return
       this.$bus.$emit('importFile', file)
     }
   }
