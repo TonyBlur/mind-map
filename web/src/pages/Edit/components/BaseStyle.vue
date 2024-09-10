@@ -1120,7 +1120,7 @@ export default {
       },
       config: {
         openPerformance: false,
-        enableFreeDrag: false,
+        enableFreeDrag: true,
         mousewheelAction: 'zoom',
         mousewheelZoomActionReverse: false,
         createNewNodeBehavior: 'default'
