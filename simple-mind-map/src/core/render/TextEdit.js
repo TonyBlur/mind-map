@@ -216,6 +216,7 @@ export default class TextEdit {
     this.registerTmpShortcut()
     if (!this.textEditNode) {
       this.textEditNode = document.createElement('div')
+      this.textEditNode.classList.add('smm-node-edit-wrap')
       this.textEditNode.style.cssText = `position:fixed;box-sizing: border-box;background-color:#fff;box-shadow: 0 0 20px rgba(0,0,0,.5);padding: ${this.textNodePaddingY}px ${this.textNodePaddingX}px;margin-left: -5px;margin-top: -3px;outline: none; word-break: break-all;`
       this.textEditNode.setAttribute('contenteditable', true)
       this.textEditNode.addEventListener('keyup', e => {
@@ -333,15 +334,16 @@ export default class TextEdit {
     if (!this.showTextEdit) {
       return
     }
-    this.renderer.activeNodeList.forEach(node => {
-      let str = this.getEditText()
-      this.mindMap.execCommand('SET_NODE_TEXT', node, str)
-      if (node.isGeneralization) {
-        // 概要节点
-        node.generalizationBelongNode.updateGeneralization()
-      }
-      this.mindMap.render()
-    })
+    this.mindMap.execCommand(
+      'SET_NODE_TEXT',
+      this.currentNode,
+      this.getEditText()
+    )
+    if (this.currentNode.isGeneralization) {
+      // 概要节点
+      this.currentNode.generalizationBelongNode.updateGeneralization()
+    }
+    this.mindMap.render()
     const currentNode = this.currentNode
     this.currentNode = null
     this.textEditNode.style.display = 'none'

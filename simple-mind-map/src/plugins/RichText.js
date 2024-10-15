@@ -89,6 +89,18 @@ class RichText {
 
   // 插入样式
   appendCss() {
+    this.mindMap.appendCss(
+      'richText',
+      `
+      .smm-richtext-node-wrap {
+        word-break: break-all;
+      }
+
+      .smm-richtext-node-wrap p {
+        font-family: auto;
+      }
+      `
+    )
     let cssText = `
       .ql-editor {
         overflow: hidden;
@@ -105,15 +117,6 @@ class RichText {
 
       .ql-container.ql-snow {
         border: none;
-      }
-
-      .smm-richtext-node-wrap {
-        word-break: break-all;
-      }
-
-      .smm-richtext-node-wrap p {
-        font-family: auto;
-        
       }
 
       .smm-richtext-node-edit-wrap p {
@@ -180,7 +183,7 @@ class RichText {
     if (this.showTextEdit) {
       return
     }
-    const {
+    let {
       richTextEditFakeInPlace,
       customInnerElsAppendTo,
       nodeTextEditZIndex,
@@ -188,6 +191,9 @@ class RichText {
       selectTextOnEnterEditText,
       transformRichTextOnEnterEdit
     } = this.mindMap.opt
+    textAutoWrapWidth = node.hasCustomWidth()
+      ? node.customTextWidth
+      : textAutoWrapWidth
     this.node = node
     this.isInserting = isInserting
     if (!rect) rect = node._textData.node.node.getBoundingClientRect()
@@ -382,8 +388,7 @@ class RichText {
     }
     let html = this.getEditText()
     html = this.sortHtmlNodeStyles(html)
-    let list =
-      nodes && nodes.length > 0 ? nodes : this.mindMap.renderer.activeNodeList
+    const list = nodes && nodes.length > 0 ? nodes : [this.node]
     list.forEach(node => {
       this.mindMap.execCommand('SET_NODE_TEXT', node, html, true)
       // if (node.isGeneralization) {
@@ -534,6 +539,7 @@ class RichText {
     //   let style = this.getPasteTextStyle()
     //   return new Delta().insert(this.formatPasteText(node.data), style)
     // })
+    // 剪贴板里只要存在文本就会走这里，所以当剪贴板里是纯文本，或文本+图片都可以监听到和拦截，但是只有纯图片时不会走这里，所以无法拦截
     this.quill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
       let ops = []
       let style = this.getPasteTextStyle()
@@ -549,7 +555,7 @@ class RichText {
       delta.ops = ops
       return delta
     })
-    // 拦截图片的粘贴
+    // 拦截图片的粘贴，当剪贴板里是纯图片，或文本+图片都可以拦截到，但是带来的问题是文本+图片时里面的文本也无法粘贴
     this.quill.root.addEventListener(
       'paste',
       e => {
@@ -860,6 +866,7 @@ class RichText {
     this.transformAllNodesToNormalNode()
     document.head.removeChild(this.styleEl)
     this.unbindEvent()
+    this.mindMap.removeAppendCss('richText')
   }
 
   // 插件被卸载前做的事情

@@ -6,6 +6,7 @@ import nodeExpandBtnMethods from './nodeExpandBtn'
 import nodeCommandWrapsMethods from './nodeCommandWraps'
 import nodeCreateContentsMethods from './nodeCreateContents'
 import nodeExpandBtnPlaceholderRectMethods from './nodeExpandBtnPlaceholderRect'
+import nodeModifyWidthMethods from './nodeModifyWidth'
 import nodeCooperateMethods from './nodeCooperate'
 import { CONSTANTS } from '../../../constants/constant'
 import {
@@ -22,6 +23,8 @@ class MindMapNode {
     this.opt = opt
     // 节点数据
     this.nodeData = this.handleData(opt.data || {})
+    // 保存本次更新时的节点数据快照
+    this.nodeDataSnapshot = ''
     // uid
     this.uid = opt.uid
     // 控制实例
@@ -54,6 +57,8 @@ class MindMapNode {
     this.width = opt.width || 0
     // 节点高
     this.height = opt.height || 0
+    // 自定义文本的宽度
+    this.customTextWidth = opt.data.data.customTextWidth || undefined
     // left
     this._left = opt.left || 0
     // top
@@ -150,10 +155,15 @@ class MindMapNode {
           proto[item] = nodeCooperateMethods[item]
         })
       }
+      // 拖拽调整节点宽度
+      Object.keys(nodeModifyWidthMethods).forEach(item => {
+        proto[item] = nodeModifyWidthMethods[item]
+      })
       proto.bindEvent = true
     }
     // 初始化
     this.getSize()
+    this.initDragHandle()
   }
 
   // 支持自定义位置
@@ -197,7 +207,8 @@ class MindMapNode {
   }
 
   //  创建节点的各个内容对象数据
-  createNodeData() {
+  // recreateTypes：[] custom、image、icon、text、hyperlink、tag、note、attachment、numbers、prefix、postfix
+  createNodeData(recreateTypes) {
     // 自定义节点内容
     let {
       isUseCustomNodeContent,
@@ -205,7 +216,39 @@ class MindMapNode {
       createNodePrefixContent,
       createNodePostfixContent
     } = this.mindMap.opt
-    if (isUseCustomNodeContent && customCreateNodeContent) {
+    // 需要创建的内容类型
+    const typeList = [
+      'custom',
+      'image',
+      'icon',
+      'text',
+      'hyperlink',
+      'tag',
+      'note',
+      'attachment',
+      'numbers',
+      'prefix',
+      'postfix'
+    ]
+    const createTypes = {}
+    if (Array.isArray(recreateTypes)) {
+      // 重新创建指定的内容类型
+      typeList.forEach(item => {
+        if (recreateTypes.includes(item)) {
+          createTypes[item] = true
+        }
+      })
+    } else {
+      // 创建所有类型
+      typeList.forEach(item => {
+        createTypes[item] = true
+      })
+    }
+    if (
+      isUseCustomNodeContent &&
+      customCreateNodeContent &&
+      createTypes.custom
+    ) {
       this._customNodeContent = customCreateNodeContent(this)
     }
     // 如果没有返回内容，那么还是使用内置的节点内容
@@ -213,37 +256,42 @@ class MindMapNode {
       addXmlns(this._customNodeContent)
       return
     }
-    this._imgData = this.createImgNode()
-    this._iconData = this.createIconNode()
-    this._textData = this.createTextNode()
-    this._hyperlinkData = this.createHyperlinkNode()
-    this._tagData = this.createTagNode()
-    this._noteData = this.createNoteNode()
-    this._attachmentData = this.createAttachmentNode()
-    if (this.mindMap.numbers) {
+    if (createTypes.image) this._imgData = this.createImgNode()
+    if (createTypes.icon) this._iconData = this.createIconNode()
+    if (createTypes.text) this._textData = this.createTextNode()
+    if (createTypes.hyperlink) this._hyperlinkData = this.createHyperlinkNode()
+    if (createTypes.tag) this._tagData = this.createTagNode()
+    if (createTypes.note) this._noteData = this.createNoteNode()
+    if (createTypes.attachment)
+      this._attachmentData = this.createAttachmentNode()
+    if (this.mindMap.numbers && createTypes.numbers) {
       this._numberData = this.mindMap.numbers.createNumberContent(this)
     }
-    this._prefixData = createNodePrefixContent
-      ? createNodePrefixContent(this)
-      : null
-    if (this._prefixData && this._prefixData.el) {
-      addXmlns(this._prefixData.el)
+    if (createTypes.prefix) {
+      this._prefixData = createNodePrefixContent
+        ? createNodePrefixContent(this)
+        : null
+      if (this._prefixData && this._prefixData.el) {
+        addXmlns(this._prefixData.el)
+      }
     }
-    this._postfixData = createNodePostfixContent
-      ? createNodePostfixContent(this)
-      : null
-    if (this._postfixData && this._postfixData.el) {
-      addXmlns(this._postfixData.el)
+    if (createTypes.postfix) {
+      this._postfixData = createNodePostfixContent
+        ? createNodePostfixContent(this)
+        : null
+      if (this._postfixData && this._postfixData.el) {
+        addXmlns(this._postfixData.el)
+      }
     }
   }
 
   //  计算节点的宽高
-  getSize() {
+  getSize(recreateTypes) {
     this.customLeft = this.getData('customLeft') || undefined
     this.customTop = this.getData('customTop') || undefined
     // 这里不要更新概要，不然即使概要没修改，每次也会重新渲染
     // this.updateGeneralization()
-    this.createNodeData()
+    this.createNodeData(recreateTypes)
     let { width, height } = this.getNodeRect()
     // 判断节点尺寸是否有变化
     let changed = this.width !== width || this.height !== height
@@ -258,7 +306,7 @@ class MindMapNode {
     if (this.isUseCustomNodeContent()) {
       let rect = this.measureCustomNodeContentSize(this._customNodeContent)
       return {
-        width: rect.width,
+        width: this.hasCustomWidth() ? this.customTextWidth : rect.width,
         height: rect.height
       }
     }
@@ -582,12 +630,15 @@ class MindMapNode {
       this.active(e)
     })
     this.group.on('mousedown', e => {
-      e.preventDefault()
       const {
         readonly,
         enableCtrlKeyNodeSelection,
-        useLeftKeySelectionRightKeyDrag
+        useLeftKeySelectionRightKeyDrag,
+        mousedownEventPreventDefault
       } = this.mindMap.opt
+      if (mousedownEventPreventDefault) {
+        e.preventDefault()
+      }
       // 只读模式不需要阻止冒泡
       if (!readonly) {
         if (this.isRoot) {
@@ -735,15 +786,20 @@ class MindMapNode {
         }
       }
     }
+    // 更新拖拽手柄的显示与否
+    this.updateDragHandle()
     // 更新概要
     this.renderGeneralization(forceRender)
     // 更新协同头像
     if (this.updateUserListNode) this.updateUserListNode()
     // 更新节点位置
     let t = this.group.transform()
-    // 如果节点位置没有变化，则返回
-    if (this.left === t.translateX && this.top === t.translateY) return
-    this.group.translate(this.left - t.translateX, this.top - t.translateY)
+    // 保存一份当前节点数据快照
+    this.nodeDataSnapshot = JSON.stringify(this.getData())
+    // 节点位置变化才更新，因为即使值没有变化属性设置操作也是耗时的
+    if (this.left !== t.translateX || this.top !== t.translateY) {
+      this.group.translate(this.left - t.translateX, this.top - t.translateY)
+    }
   }
 
   // 获取节点相当于画布的位置
@@ -770,8 +826,8 @@ class MindMapNode {
   }
 
   // 重新渲染节点，即重新创建节点内容、计算节点大小、计算节点内容布局、更新展开收起按钮，概要及位置
-  reRender() {
-    let sizeChange = this.getSize()
+  reRender(recreateTypes) {
+    let sizeChange = this.getSize(recreateTypes)
     this.layout()
     this.update()
     return sizeChange
@@ -794,6 +850,7 @@ class MindMapNode {
         this.hideExpandBtn()
       }
       this.updateNodeActiveClass()
+      this.updateDragHandle()
     }
   }
 
@@ -917,7 +974,7 @@ class MindMapNode {
 
   //  隐藏节点
   hide() {
-    this.group.hide()
+    if (this.group) this.group.hide()
     this.hideGeneralization()
     if (this.parent) {
       let index = this.parent.children.indexOf(this)
@@ -960,7 +1017,7 @@ class MindMapNode {
   // 包括连接线和下级节点
   setOpacity(val) {
     // 自身及连线
-    this.group.opacity(val)
+    if (this.group) this.group.opacity(val)
     this._lines.forEach(line => {
       line.opacity(val)
     })
@@ -999,13 +1056,13 @@ class MindMapNode {
   // 被拖拽中
   startDrag() {
     this.isDrag = true
-    this.group.addClass('smm-node-dragging')
+    if (this.group) this.group.addClass('smm-node-dragging')
   }
 
   // 拖拽结束
   endDrag() {
     this.isDrag = false
-    this.group.removeClass('smm-node-dragging')
+    if (this.group) this.group.removeClass('smm-node-dragging')
   }
 
   //  连线
@@ -1248,7 +1305,7 @@ class MindMapNode {
 
   // 获取节点的尺寸和位置信息，宽高是应用了缩放效果后的实际宽高，位置是相对于浏览器窗口左上角的位置
   getRect() {
-    return this.group.rbox()
+    return this.group ? this.group.rbox() : null
   }
 
   // 获取节点的尺寸和位置信息，宽高是应用了缩放效果后的实际宽高，位置信息相对于画布
@@ -1296,6 +1353,30 @@ class MindMapNode {
   // 创建SVG文本节点
   createSvgTextNode(text = '') {
     return new Text().text(text)
+  }
+
+  // 检查是否支持拖拽调整宽度
+  // 1.富文本模式
+  // 2.自定义节点内容
+  checkEnableDragModifyNodeWidth() {
+    const {
+      enableDragModifyNodeWidth,
+      isUseCustomNodeContent,
+      customCreateNodeContent
+    } = this.mindMap.opt
+    return (
+      enableDragModifyNodeWidth &&
+      (this.mindMap.richText ||
+        (isUseCustomNodeContent && customCreateNodeContent))
+    )
+  }
+
+  // 是否存在自定义宽度
+  hasCustomWidth() {
+    return (
+      this.checkEnableDragModifyNodeWidth() &&
+      this.customTextWidth !== undefined
+    )
   }
 }
 

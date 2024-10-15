@@ -36,7 +36,7 @@ import {
   throttle
 } from '../../utils'
 import { shapeList } from './node/Shape'
-import { lineStyleProps } from '../../themes/default'
+import { lineStyleProps } from '../../theme/default'
 import { CONSTANTS, ERROR_TYPES } from '../../constants/constant'
 import { Polygon } from '@svgdotjs/svg.js'
 
@@ -102,7 +102,6 @@ class Render {
     this.highlightBoxNode = null
     this.highlightBoxNodeStyle = null
     // 上一次节点激活数据
-    this.lastActiveNode = null
     this.lastActiveNodeList = []
     // 布局
     this.setLayout()
@@ -125,7 +124,7 @@ class Render {
 
   // 重新设置思维导图数据
   setData(data) {
-    if (this.mindMap.richText) {
+    if (this.hasRichTextPlugin()) {
       this.renderTree = data ? this.mindMap.richText.handleSetData(data) : null
     } else {
       this.renderTree = data
@@ -435,13 +434,11 @@ class Render {
 
   // 派发节点激活事件
   emitNodeActiveEvent(node = null, activeNodeList = [...this.activeNodeList]) {
-    let isChange = false
-    isChange = this.lastActiveNode !== node
-    if (!isChange) {
-      isChange = !checkNodeListIsEqual(this.lastActiveNodeList, activeNodeList)
-    }
+    const isChange = !checkNodeListIsEqual(
+      this.lastActiveNodeList,
+      activeNodeList
+    )
     if (!isChange) return
-    this.lastActiveNode = node
     this.lastActiveNodeList = [...activeNodeList]
     this.mindMap.batchExecution.push('emitNodeActiveEvent', () => {
       this.mindMap.emit('node_active', node, activeNodeList)
@@ -549,7 +546,7 @@ class Render {
           }
           // 触发一次保存，因为修改了渲染树的数据
           if (
-            this.mindMap.richText &&
+            this.hasRichTextPlugin() &&
             [CONSTANTS.CHANGE_THEME, CONSTANTS.SET_DATA].includes(source)
           ) {
             this.mindMap.command.addHistory()
@@ -563,7 +560,7 @@ class Render {
 
   // 给当前被收起来的节点数据添加文本复位标志
   resetUnExpandNodeStyle() {
-    if (!this.renderTree) return
+    if (!this.renderTree || !this.hasRichTextPlugin()) return
     walk(this.renderTree, null, node => {
       if (!node.data.expand) {
         walk(node, null, node2 => {
@@ -740,7 +737,7 @@ class Render {
     } = this.mindMap.opt
     const list = appointNodes.length > 0 ? appointNodes : this.activeNodeList
     const handleMultiNodes = list.length > 1
-    const isRichText = !!this.mindMap.richText
+    const isRichText = this.hasRichTextPlugin()
     const { focusNewNode, inserting } = this.getNewNodeBehavior(
       openEdit,
       handleMultiNodes
@@ -748,9 +745,9 @@ class Render {
     const params = {
       expand: true,
       richText: isRichText,
-      resetRichText: isRichText,
       isActive: focusNewNode // 如果同时对多个节点插入子节点，那么需要把新增的节点设为激活状态。如果不进入编辑状态，那么也需要手动设为激活状态
     }
+    if (isRichText) params.resetRichText = isRichText
     // 动态指定的子节点数据也需要添加相关属性
     appointChildren = addDataToAppointNodes(appointChildren, {
       ...params
@@ -795,14 +792,14 @@ class Render {
     }
     this.textEdit.hideEditTextBox()
     const list = appointNodes.length > 0 ? appointNodes : this.activeNodeList
-    const isRichText = !!this.mindMap.richText
+    const isRichText = this.hasRichTextPlugin()
     const { focusNewNode } = this.getNewNodeBehavior(false, true)
     const params = {
       expand: true,
       richText: isRichText,
-      resetRichText: isRichText,
       isActive: focusNewNode
     }
+    if (isRichText) params.resetRichText = isRichText
     nodeList = addDataToAppointNodes(nodeList, params)
     list.forEach(node => {
       if (node.isGeneralization || node.isRoot) {
@@ -838,7 +835,7 @@ class Render {
     } = this.mindMap.opt
     const list = appointNodes.length > 0 ? appointNodes : this.activeNodeList
     const handleMultiNodes = list.length > 1
-    const isRichText = !!this.mindMap.richText
+    const isRichText = this.hasRichTextPlugin()
     const { focusNewNode, inserting } = this.getNewNodeBehavior(
       openEdit,
       handleMultiNodes
@@ -846,9 +843,9 @@ class Render {
     const params = {
       expand: true,
       richText: isRichText,
-      resetRichText: isRichText,
       isActive: focusNewNode
     }
+    if (isRichText) params.resetRichText = isRichText
     // 动态指定的子节点数据也需要添加相关属性
     appointChildren = addDataToAppointNodes(appointChildren, {
       ...params
@@ -895,14 +892,14 @@ class Render {
     }
     this.textEdit.hideEditTextBox()
     const list = appointNodes.length > 0 ? appointNodes : this.activeNodeList
-    const isRichText = !!this.mindMap.richText
+    const isRichText = this.hasRichTextPlugin()
     const { focusNewNode } = this.getNewNodeBehavior(false, true)
     const params = {
       expand: true,
       richText: isRichText,
-      resetRichText: isRichText,
       isActive: focusNewNode
     }
+    if (isRichText) params.resetRichText = isRichText
     childList = addDataToAppointNodes(childList, params)
     list.forEach(node => {
       if (node.isGeneralization) {
@@ -937,7 +934,7 @@ class Render {
     } = this.mindMap.opt
     const list = appointNodes.length > 0 ? appointNodes : this.activeNodeList
     const handleMultiNodes = list.length > 1
-    const isRichText = !!this.mindMap.richText
+    const isRichText = this.hasRichTextPlugin()
     const { focusNewNode, inserting } = this.getNewNodeBehavior(
       openEdit,
       handleMultiNodes
@@ -945,9 +942,9 @@ class Render {
     const params = {
       expand: true,
       richText: isRichText,
-      resetRichText: isRichText,
       isActive: focusNewNode
     }
+    if (isRichText) params.resetRichText = isRichText
     list.forEach(node => {
       if (node.isGeneralization || node.isRoot) {
         return
@@ -966,9 +963,11 @@ class Render {
         },
         children: [node.nodeData]
       }
-      node.setData({
-        resetRichText: true
-      })
+      if (isRichText) {
+        node.setData({
+          resetRichText: true
+        })
+      }
       const parent = node.parent
       // 获取当前节点所在位置
       const index = getNodeDataIndex(node)
@@ -1058,7 +1057,7 @@ class Render {
       }
     })
     // 如果是富文本，那么还要处理富文本内容
-    if (hasCustomStyles && this.mindMap.richText) {
+    if (hasCustomStyles && this.hasRichTextPlugin()) {
       nodeData.resetRichText = true
       nodeData.text = removeRichTextStyes(nodeData.text)
     }
@@ -1156,7 +1155,8 @@ class Render {
       errorHandler,
       handleIsSplitByWrapOnPasteCreateNewNode,
       handleNodePasteImg,
-      disabledClipboard
+      disabledClipboard,
+      onlyPasteTextWhenHasImgAndText
     } = this.mindMap.opt
     // 读取剪贴板的文字和图片
     let text = ''
@@ -1261,7 +1261,7 @@ class Render {
         }
       }
       // 存在图片，则添加到当前激活节点
-      if (img) {
+      if (img && (!text || !onlyPasteTextWhenHasImgAndText)) {
         try {
           let imgData = null
           // 自定义图片处理函数
@@ -1341,7 +1341,7 @@ class Render {
 
   // 如果是富文本模式，那么某些层级变化需要更新样式
   checkNodeLayerChange(node, toNode, toNodeIsParent = false) {
-    if (this.mindMap.richText) {
+    if (this.hasRichTextPlugin()) {
       // 如果设置了自定义样式那么不需要更新
       if (this.mindMap.richText.checkNodeHasCustomRichTextStyle(node)) {
         return
@@ -1568,7 +1568,7 @@ class Render {
           const newData = simpleDeepClone(item)
           createUidForAppointNodes([newData], true, node => {
             // 可能跨层级复制，那么富文本样式需要更新
-            if (this.mindMap.richText) {
+            if (this.hasRichTextPlugin()) {
               // 如果设置了自定义样式那么不需要更新
               if (
                 this.mindMap.richText.checkNodeHasCustomRichTextStyle(node.data)
@@ -1591,7 +1591,7 @@ class Render {
       [prop]: value
     }
     // 如果开启了富文本，则需要应用到富文本上
-    if (this.mindMap.richText) {
+    if (this.hasRichTextPlugin()) {
       this.mindMap.richText.setNotActiveNodeStyle(node, {
         [prop]: value
       })
@@ -1607,7 +1607,7 @@ class Render {
   setNodeStyles(node, style) {
     let data = { ...style }
     // 如果开启了富文本，则需要应用到富文本上
-    if (this.mindMap.richText) {
+    if (this.hasRichTextPlugin()) {
       this.mindMap.richText.setNotActiveNodeStyle(node, style)
     }
     this.setNodeDataRender(node, data)
@@ -1802,7 +1802,7 @@ class Render {
   // 设置节点公式
   insertFormula(formula, appointNodes = []) {
     // 只在富文本模式下可用，并且需要注册Formula插件
-    if (!this.mindMap.richText || !this.mindMap.formula) return
+    if (!this.hasRichTextPlugin() || !this.mindMap.formula) return
     appointNodes = formatDataToArray(appointNodes)
     const list = appointNodes.length > 0 ? appointNodes : this.activeNodeList
     list.forEach(node => {
@@ -1824,7 +1824,7 @@ class Render {
     })
     const list = parseAddGeneralizationNodeList(nodeList)
     if (list.length <= 0) return
-    const isRichText = !!this.mindMap.richText
+    const isRichText = this.hasRichTextPlugin()
     const { focusNewNode, inserting } = this.getNewNodeBehavior(
       openEdit,
       list.length > 1
@@ -1839,9 +1839,9 @@ class Render {
         range: item.range || null,
         uid: createUid(),
         richText: isRichText,
-        resetRichText: isRichText,
         isActive: focusNewNode
       }
+      if (isRichText) newData.resetRichText = isRichText
       let generalization = item.node.getData('generalization')
       generalization = generalization
         ? Array.isArray(generalization)
@@ -2170,6 +2170,11 @@ class Render {
   closeHighlightNode() {
     if (!this.highlightBoxNode) return
     this.highlightBoxNode.remove()
+  }
+
+  // 是否存在富文本插件
+  hasRichTextPlugin() {
+    return !!this.mindMap.richText
   }
 }
 

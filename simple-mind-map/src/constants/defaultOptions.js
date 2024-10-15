@@ -7,6 +7,8 @@ export const defaultOpt = {
   el: null,
   // 思维导图回显数据
   data: null,
+  // 要恢复的视图数据，一般通过mindMap.view.getTransformData()方法获取
+  viewData: null,
   // 是否只读
   readonly: false,
   // 布局
@@ -247,6 +249,14 @@ export const defaultOpt = {
   openRealtimeRenderOnNodeTextEdit: false,
   // 默认会给容器元素el绑定mousedown事件，并且会阻止其默认事件，这会带来一定问题，比如你聚焦在思维导图外的其他输入框，点击画布就不会触发其失焦，可以通过该选项关闭阻止。关闭后也会带来一定问题，比如鼠标框选节点时可能会选中节点文字，看你如何取舍
   mousedownEventPreventDefault: true,
+  // 在激活上粘贴用户剪贴板中的数据时，如果同时存在文本和图片，那么只粘贴文本，忽略图片
+  onlyPasteTextWhenHasImgAndText: true,
+  // 是否允许拖拽调整节点的宽度，实际上压缩的是节点里面文本内容的宽度，当节点文本内容宽度压缩到最小时无法继续压缩。如果节点存在图片，那么最小值以图片宽度和文本内容最小宽度的最大值为准（目前该特性仅在两种情况下可用：1.开启了富文本模式，即注册了RichText插件；2.自定义节点内容）
+  enableDragModifyNodeWidth: true,
+  // 当允许拖拽调整节点的宽度时，可以通过该选项设置节点文本内容允许压缩的最小宽度
+  minNodeTextModifyWidth: 20,
+  // 同minNodeTextModifyWidth，最大值，传-1代表不限制
+  maxNodeTextModifyWidth: -1,
 
   // 【Select插件】
   // 多选节点时鼠标移动到边缘时的画布移动偏移量
@@ -348,6 +358,8 @@ export const defaultOpt = {
   },
   // 是否允许调整关联线两个端点的位置
   enableAdjustAssociativeLinePoints: true,
+  // 关联线连接即将完成时执行，如果要阻止本次连接可以返回true，函数接收一个参数：node（目标节点实例）
+  beforeAssociativeLineConnection: null,
 
   // 【TouchEvent插件】
   // 禁止双指缩放，你仍旧可以使用api进行缩放
@@ -428,5 +440,15 @@ export const defaultOpt = {
 
   // 【NodeImgAdjust】插件
   // 拦截节点图片的删除，点击节点图片上的删除按钮删除图片前会调用该函数，如果函数返回true则取消删除
-  beforeDeleteNodeImg: null
+  beforeDeleteNodeImg: null,
+  // 删除和调整两个按钮的大小
+  imgResizeBtnSize: 25,
+  // 最小允许缩放的尺寸，请传入>=0的数字
+  minImgResizeWidth: 50,
+  minImgResizeHeight: 50,
+  // 最大允许缩放的尺寸依据主题的配置，即主题的imgMaxWidth和imgMaxHeight配置，如果设置为false，那么使用maxImgResizeWidth和maxImgResizeHeight选项
+  maxImgResizeWidthInheritTheme: false,
+  // 最大允许缩放的尺寸，maxImgResizeWidthInheritTheme选项设置为false时生效，不限制最大值可传递Infinity
+  maxImgResizeWidth: Infinity,
+  maxImgResizeHeight: Infinity
 }
