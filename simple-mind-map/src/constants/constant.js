@@ -75,6 +75,10 @@ export const CONSTANTS = {
   TAG_POSITION: {
     RIGHT: 'right',
     BOTTOM: 'bottom'
+  },
+  EDIT_NODE_CLASS: {
+    SMM_NODE_EDIT_WRAP: 'smm-node-edit-wrap',
+    RICH_TEXT_EDIT_WRAP: 'ql-editor'
   }
 }
 
@@ -167,7 +171,8 @@ export const nodeDataNoStylePropList = [
   'range',
   'customLeft',
   'customTop',
-  'customTextWidth'
+  'customTextWidth',
+  'checkbox'
 ]
 
 // 错误类型
@@ -199,6 +204,10 @@ export const cssContent = `
     display: block;
     opacity: 1;
     stroke-width: 2;
+  }
+
+  .smm-text-node-wrap {
+    user-select: none;
   }
 `
 

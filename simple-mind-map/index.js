@@ -56,6 +56,26 @@ class MindMap {
     this.cssEl = null
     this.cssTextMap = {} // 该样式在实例化时会动态添加到页面，同时导出为svg时也会添加到svg源码中
 
+    // 节点前置内容列表
+    /*
+      {
+        name: '',// 一个唯一的类型标识
+        // 创建节点的显示内容：节点元素、宽高
+        createContent: (node) => {
+          return {
+            node: null,
+            width: 0,
+            height: 0
+          }
+        },
+        // 创建保存到节点实例的opt对象中的数据
+        createNodeData: () => {},
+        // 更新节点实例的opt数据，返回数据是否改变了
+        updateNodeData: () => {},
+      }
+    */
+    this.nodeInnerPrefixList = []
+
     // 画布
     this.initContainer()
 
@@ -459,11 +479,16 @@ class MindMap {
     }
     const isReadonly = mode === CONSTANTS.MODE.READONLY
     if (isReadonly === this.opt.readonly) return
-    this.opt.readonly = isReadonly
-    if (this.opt.readonly) {
+    if (isReadonly) {
+      // 如果处于编辑态，要隐藏所有的编辑框
+      if (this.renderer.textEdit.isShowTextEdit()) {
+        this.renderer.textEdit.hideEditTextBox()
+        this.command.originAddHistory()
+      }
       // 取消当前激活的元素
       this.execCommand('CLEAR_ACTIVE_NODE')
     }
+    this.opt.readonly = isReadonly
     this.emit('mode_change', mode)
   }
 

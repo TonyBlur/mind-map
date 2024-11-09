@@ -56,6 +56,9 @@
         <span class="name">{{ $t('contextmenu.moveDownNode') }}</span>
         <span class="desc">Ctrl + ↓</span>
       </div>
+      <div class="item" @click="exec('UNEXPAND_ALL')">
+        <span class="name">{{ $t('contextmenu.unExpandNodeChild') }}</span>
+      </div>
       <div class="item" @click="exec('EXPAND_ALL')">
         <span class="name">{{ $t('contextmenu.expandNodeChild') }}</span>
       </div>
@@ -88,6 +91,11 @@
             {{ numberLevel === item.value ? '√' : '' }}
           </div>
         </div>
+      </div>
+      <div class="item" @click="setCheckbox" v-if="supportCheckbox">
+        <span class="name">{{
+          hasCheckbox ? $t('contextmenu.removeToDo') : $t('contextmenu.addToDo')
+        }}</span>
       </div>
       <div class="splitLine"></div>
       <div class="item danger" @click="exec('REMOVE_NODE')">
@@ -244,7 +252,8 @@ export default {
     ...mapState({
       isZenMode: state => state.localConfig.isZenMode,
       isDark: state => state.localConfig.isDark,
-      supportNumbers: state => state.supportNumbers
+      supportNumbers: state => state.supportNumbers,
+      supportCheckbox: state => state.supportCheckbox
     }),
     expandList() {
       return [
@@ -322,6 +331,9 @@ export default {
     },
     numberLevelList() {
       return numberLevelList[this.$i18n.locale] || numberLevelList.zh
+    },
+    hasCheckbox() {
+      return !!this.node.getData('checkbox')
     }
   },
   created() {
@@ -464,8 +476,12 @@ export default {
             this.node
           )
           break
+        case 'UNEXPAND_ALL':
+          const uid = this.node ? this.node.uid : ''
+          this.$bus.$emit('execCommand', key, !uid, uid)
+          break
         case 'EXPAND_ALL':
-          this.$bus.$emit('execCommand', key, this.node.uid)
+          this.$bus.$emit('execCommand', key, this.node ? this.node.uid : '')
           break
         default:
           this.$bus.$emit('execCommand', key, ...args)
@@ -496,6 +512,21 @@ export default {
       this.mindMap.execCommand('SET_NUMBER', [], {
         [prop]: value
       })
+      this.hide()
+    },
+
+    // 设置待办
+    setCheckbox() {
+      this.mindMap.execCommand(
+        'SET_CHECKBOX',
+        [],
+        this.hasCheckbox
+          ? null
+          : {
+              done: false
+            }
+      )
+      this.hide()
     },
 
     // 复制到剪贴板

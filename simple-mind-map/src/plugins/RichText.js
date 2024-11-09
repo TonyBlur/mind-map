@@ -92,6 +92,7 @@ class RichText {
       `
       .smm-richtext-node-wrap {
         word-break: break-all;
+        user-select: none;
       }
 
       .smm-richtext-node-wrap p {
@@ -100,7 +101,7 @@ class RichText {
       `
     )
     let cssText = `
-      .ql-editor {
+      .${CONSTANTS.EDIT_NODE_CLASS.RICH_TEXT_EDIT_WRAP} {
         overflow: hidden;
         padding: 0;
         height: auto;
@@ -188,7 +189,8 @@ class RichText {
       textAutoWrapWidth,
       selectTextOnEnterEditText,
       transformRichTextOnEnterEdit,
-      openRealtimeRenderOnNodeTextEdit
+      openRealtimeRenderOnNodeTextEdit,
+      autoEmptyTextWhenKeydownEnterEdit
     } = this.mindMap.opt
     textAutoWrapWidth = node.hasCustomWidth()
       ? node.customTextWidth
@@ -205,8 +207,8 @@ class RichText {
     let originWidth = g.attr('data-width')
     let originHeight = g.attr('data-height')
     // 缩放值
-    let scaleX = rect.width / originWidth
-    let scaleY = rect.height / originHeight
+    const scaleX = Math.ceil(rect.width) / originWidth
+    const scaleY = Math.ceil(rect.height) / originHeight
     // 内边距
     let paddingX = this.textNodePaddingX
     let paddingY = this.textNodePaddingY
@@ -229,6 +231,9 @@ class RichText {
         outline: none; 
         word-break: break-all;
         padding: ${paddingY}px ${paddingX}px;
+        transform-style: preserve-3d;
+        filter: contrast(1) saturate(1);
+        backface-visibility: hidden;
       `
       this.textEditNode.addEventListener('click', e => {
         e.stopPropagation()
@@ -279,7 +284,10 @@ class RichText {
     if (isEmptyText) {
       this.lostStyle = true
     }
-    if (noneEmptyNoneRichText) {
+    if (isFromKeyDown && autoEmptyTextWhenKeydownEnterEdit) {
+      this.textEditNode.innerHTML = ''
+      this.lostStyle = true
+    } else if (noneEmptyNoneRichText) {
       // 还不是富文本
       let text = String(nodeText).split(/\n/gim).join('<br>')
       let html = `<p>${text}</p>`
@@ -289,7 +297,9 @@ class RichText {
       this.textEditNode.innerHTML = this.cacheEditingText || nodeText
     }
     this.initQuillEditor()
-    document.querySelector('.ql-editor').style.minHeight = originHeight + 'px'
+    document.querySelector(
+      '.' + CONSTANTS.EDIT_NODE_CLASS.RICH_TEXT_EDIT_WRAP
+    ).style.minHeight = originHeight + 'px'
     this.showTextEdit = true
     // 如果是刚创建的节点，那么默认全选，否则普通激活不全选，除非selectTextOnEnterEditText配置为true
     // 在selectTextOnEnterEditText时，如果是在keydown事件进入的节点编辑，也不需要全选
@@ -463,6 +473,16 @@ class RichText {
           }
         }
       },
+      formats: [
+        'bold',
+        'italic',
+        'underline',
+        'strike',
+        'color',
+        'background',
+        'font',
+        'size'
+      ], // 明确指定允许的格式，不包含有序列表，无序列表等
       theme: 'snow'
     })
     // 拦截复制事件，即Ctrl + c，去除多余的空行

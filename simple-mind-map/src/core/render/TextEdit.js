@@ -113,6 +113,16 @@ export default class TextEdit {
           )
         }
       }
+      if (
+        opt.enableAutoEnterTextEditWhenKeydown !==
+        lastOpt.enableAutoEnterTextEditWhenKeydown
+      ) {
+        window[
+          opt.enableAutoEnterTextEditWhenKeydown
+            ? 'addEventListener'
+            : 'removeEventListener'
+        ]('keydown', this.onKeydown)
+      }
     })
   }
 
@@ -123,6 +133,7 @@ export default class TextEdit {
 
   // 按键事件
   onKeydown(e) {
+    if (e.target !== document.body) return
     const activeNodeList = this.mindMap.renderer.activeNodeList
     if (activeNodeList.length <= 0 || activeNodeList.length > 1) return
     const node = activeNodeList[0]
@@ -255,7 +266,8 @@ export default class TextEdit {
       nodeTextEditZIndex,
       textAutoWrapWidth,
       selectTextOnEnterEditText,
-      openRealtimeRenderOnNodeTextEdit
+      openRealtimeRenderOnNodeTextEdit,
+      autoEmptyTextWhenKeydownEnterEdit
     } = this.mindMap.opt
     if (!isFromScale) {
       this.mindMap.emit('before_show_text_edit')
@@ -263,7 +275,9 @@ export default class TextEdit {
     this.registerTmpShortcut()
     if (!this.textEditNode) {
       this.textEditNode = document.createElement('div')
-      this.textEditNode.classList.add('smm-node-edit-wrap')
+      this.textEditNode.classList.add(
+        CONSTANTS.EDIT_NODE_CLASS.SMM_NODE_EDIT_WRAP
+      )
       this.textEditNode.style.cssText = `
         position: fixed;
         box-sizing: border-box;
@@ -278,6 +292,9 @@ export default class TextEdit {
         outline: none; 
         word-break: break-all;
         line-break: anywhere;
+        transform-style: preserve-3d;
+        filter: contrast(1) saturate(1);
+        backface-visibility: hidden;
       `
       this.textEditNode.setAttribute('contenteditable', true)
       this.textEditNode.addEventListener('keyup', e => {
@@ -328,7 +345,11 @@ export default class TextEdit {
       this.textEditNode.style.background = this.getBackground(node)
     }
     this.textEditNode.style.zIndex = nodeTextEditZIndex
-    this.textEditNode.innerHTML = textLines.join('<br>')
+    if (isFromKeyDown && autoEmptyTextWhenKeydownEnterEdit) {
+      this.textEditNode.innerHTML = ''
+    } else {
+      this.textEditNode.innerHTML = textLines.join('<br>')
+    }
     this.textEditNode.style.minWidth =
       rect.width + this.textNodePaddingX * 2 + 'px'
     this.textEditNode.style.minHeight = rect.height + 'px'
